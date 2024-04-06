@@ -1,6 +1,7 @@
 #include <vector>
 #include <cmath>
 #include <typeinfo>
+#include <string>
 #include "Vector2D.h"
 
 Vector2D::Vector2D(float x) {
@@ -138,5 +139,23 @@ Vector2D Vector2D::Normalize(Vector2D v) {
 }
 
 Vector2D Vector2D::Reflect(Vector2D v, Vector2D n) {
-
+    float cos = Dot(v, n);
+    float sin = sqrt(1 - pow(cos, 2));
+    Vector2D pr(v.getX() * sin, v.getY() * sin);
+    return Vector2D(2 * pr.getX() - v.getX(), 2 * pr.getY() - v.getY());
 }
+
+Vector2D Vector2D::SquareRoot(Vector2D v) {
+    return Vector2D(pow(v.getX(), 2), pow(v.getX(), 2));
+}
+
+Vector2D Vector2D::Subtract(Vector2D v1, Vector2D v2) {
+    return Vector2D(v1.getX() - v2.getX(), v1.getY() - v2.getY());
+}
+
+std::string Vector2D::ToString() {
+    return "<" + std::to_string(this->getX()) + "; " + std::to_string(this->getY()) + ">";
+}
+
+
+

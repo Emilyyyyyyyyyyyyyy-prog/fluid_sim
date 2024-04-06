@@ -41,6 +41,10 @@ public:
     bool Equals(T obj);
     //vector1 =?= vector2
     bool Equals(Vector2D v);
+    //|vector|
+    float Length();
+    //|vector|^2
+    float LengthSquared();
     //vector(max x, max y)
     Vector2D Max(Vector2D v1, Vector2D v2);
     //vector(min x, min y)
@@ -57,12 +61,14 @@ public:
     Vector2D Normalize(Vector2D v);
     //vector -> (plane) vector
     Vector2D Reflect(Vector2D v, Vector2D n);
+    //vector(x^2, y^2)
+    Vector2D SquareRoot(Vector2D v);
+    //vector1 - vector2
+    Vector2D Subtract(Vector2D v1, Vector2D v2);
+    //<x, y>
+    std::string ToString();
 
 
-    //|vector|
-    float Length();
-    //|vector|^2
-    float LengthSquared();
 };
 
 
