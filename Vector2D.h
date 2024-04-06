@@ -3,7 +3,7 @@
 
 #include <vector>
 
-class Vector2 {
+class Vector2D {
 protected:
     float X;
     float Y;
@@ -13,46 +13,50 @@ public:
     float getX();
     float getY();
     //x == y
-    Vector2(float x);
+    Vector2D(float x);
     //x != y
-    Vector2(float x, float y);
+    Vector2D(float x, float y);
     //Absolutely vector
-    Vector2 Abs(Vector2 v);
+    Vector2D Abs(Vector2D v);
     //Sum vector
-    Vector2 Add(Vector2 v1, Vector2 v2);
+    Vector2D Add(Vector2D v1, Vector2D v2);
     //min >= v >= max
-    Vector2 Clamp(Vector2 v, Vector2 v_max, Vector2 v_min);
+    Vector2D Clamp(Vector2D v, Vector2D v_max, Vector2D v_min);
     //vectot -> array
     void CopyTo(std::vector<float> v);
     //vectot -> array[i]
     void CopyTo(std::vector<float> v, int index);
     //dist v1 <-> v2
-    float Distance(Vector2 v1, Vector2 v2);
+    float Distance(Vector2D v1, Vector2D v2);
     //dist^2 v1 <-> v2
-    float DistanceSquared(Vector2 v1, Vector2 v2);
+    float DistanceSquared(Vector2D v1, Vector2D v2);
     //vector / const
-    Vector2 Divide(Vector2 v, float a);
+    Vector2D Divide(Vector2D v, float a);
     //vector / vector
-    Vector2 Divide(Vector2 v1, Vector2 v2);
+    Vector2D Divide(Vector2D v1, Vector2D v2);
     //(vector1, vector2)
-    float Dot(Vector2 v1, Vector2 v2);
+    float Dot(Vector2D v1, Vector2D v2);
     //vector =?= object
     template<class T>
     bool Equals(T obj);
     //vector1 =?= vector2
-    bool Equals(Vector2 v);
+    bool Equals(Vector2D v);
     //vector(max x, max y)
-    Vector2 Max(Vector2 v1, Vector2 v2);
+    Vector2D Max(Vector2D v1, Vector2D v2);
     //vector(min x, min y)
-    Vector2 Min(Vector2 v1, Vector2 v2);
+    Vector2D Min(Vector2D v1, Vector2D v2);
     //const * vector
-    Vector2 Multiply(float a, Vector2 v);
+    Vector2D Multiply(float a, Vector2D v);
     //vector * const
-    Vector2 Multiply(Vector2 x, float a);
+    Vector2D Multiply(Vector2D x, float a);
     //vector * vector
-    Vector2 Multiply(Vector2 v1, Vector2 v2);
+    Vector2D Multiply(Vector2D v1, Vector2D v2);
     //vector -> -vector
-    Vector2 Negate(Vector2 v);
+    Vector2D Negate(Vector2D v);
+    //vector / len
+    Vector2D Normalize(Vector2D v);
+    //vector -> (plane) vector
+    Vector2D Reflect(Vector2D v, Vector2D n);
 
 
     //|vector|
