@@ -157,5 +157,46 @@ std::string Vector2D::ToString() {
     return "<" + std::to_string(this->getX()) + "; " + std::to_string(this->getY()) + ">";
 }
 
+Vector2D operator+(Vector2D &v1, Vector2D &v2) {
+    Vector2D new_v = Vector2D(v1.getX() + v2.getX(), v1.getY() + v2.getY());
+    return new_v;
+}
 
+Vector2D operator/(Vector2D &v, float a) {
+    Vector2D new_v = Vector2D(v.getX() / a, v.getY() / a);
+    return new_v;
+}
+
+bool operator==(Vector2D &v1, Vector2D &v2) {
+    return v1.getX() == v2.getX() and v1.getY() == v2.getY();
+}
+
+bool operator!=(Vector2D &v1, Vector2D &v2) {
+    return v1.getX() != v2.getX() or v1.getY() != v2.getY();
+}
+
+Vector2D operator*(Vector2D &v, float a) {
+    Vector2D new_v = Vector2D(v.getX() * a, v.getY() * a);
+    return new_v;
+}
+
+Vector2D operator*(float a, Vector2D &v) {
+    Vector2D new_v = Vector2D(v.getX() * a, v.getY() * a);
+    return new_v;
+}
+
+Vector2D operator*(Vector2D &v1, Vector2D &v2) {
+    Vector2D new_v = Vector2D(v1.getX() * v2.getX(), v1.getY() * v2.getY());
+    return new_v;
+}
+
+Vector2D operator-(Vector2D &v1, Vector2D &v2) {
+    Vector2D new_v = Vector2D(v2.getX() - v1.getX(), v2.getY() - v1.getY());
+    return new_v;
+}
+
+Vector2D operator-(Vector2D &v) {
+    Vector2D new_v = Vector2D(-v.getX(), -v.getY());
+    return new_v;
+}
 
