@@ -67,9 +67,24 @@ public:
     Vector2D Subtract(Vector2D v1, Vector2D v2);
     //<x, y>
     std::string ToString();
-
-
 };
-
+//vector(x1+x2, y1+y1)
+Vector2D operator+(Vector2D &v1, Vector2D &v2);
+//vector(x/a, y/a)
+Vector2D operator/(Vector2D &v, float a);
+//vector1 =?= vector2
+bool operator==(Vector2D &v1, Vector2D &v2);
+//vector1 !?= vector2
+bool operator!=(Vector2D &v1, Vector2D &v2);
+//vector(x*a, y*a)
+Vector2D operator*(Vector2D &v, float a);
+//vector(x*a, y*a)
+Vector2D operator*(float a, Vector2D &v);
+//vector(x1*x2, y1*y2)
+Vector2D operator*(Vector2D &v1, Vector2D &v2);
+//vector1 - vector2
+Vector2D operator-(Vector2D &v1, Vector2D &v2);
+//vector(-x, -y)
+Vector2D operator-(Vector2D &v);
 
 #endif //C_PROJECTS_VECTOR2_H
