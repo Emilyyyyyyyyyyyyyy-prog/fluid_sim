@@ -1,15 +1,15 @@
 .PHONY: all clean
 
-all: run
+all: sfml-app
 
 clean:
-	rm *.o
+        rm *.o sfml-app
 
-Vector.o: Vector2D.h Vector2D.cpp
-	g++ -c Vector2D.cpp -o Vector.o
+sfml-app: main.o
+        g++ main.o Vector.o -o sfml-app -lsfml-graphics -lsfml-window -lsfml-system
 
-main.o: main.cpp Vector.o
-	g++ main.cpp Vector.o -o main.o
+Vector.o: Vector2.h Vector2.cpp
+        g++ Vector2.cpp -c -o Vector.o
 
-run: main.o
-	g++ main.o -o run -lsfml-graphics -lsfml-window -lsfml-system  
+main.o: main.cpp Vector.o Vector2.h
+        g++ main.cpp -c -o main.o
