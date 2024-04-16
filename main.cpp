@@ -11,16 +11,25 @@ namespace geo {
     const int height = 500;
 }
 double gravity = 9.81;
-Vector2<double> velosity(0, 0);
-Vector2<double> position(geo::width / 2, geo::height / 2);
+//Vector2<double> velosity(0, 0);
+//Vector2<double> position(geo::width / 2, geo::height / 2);
 Vector2<double> Vdown(0, 1);
+
+int n = 5;
+std::vector<Vector2<double>> positions(n);
+std::vector<Vector2<double>> velocities(n);
 
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(geo::width, geo::height), "Fluid Model!");
-    sf::CircleShape shape(30);
-    shape.setPosition(position.x, position.y);
-    shape.setFillColor(sf::Color(51, 102, 204));
+    std::vector<sf::CircleShape> shapes(n);
+    for (unsigned int i = 0; i < positions.size(); i++) {
+        positions[i] = Vector2<double>(geo::width / 2 + i * 30, geo::height / 2);
+        velocities[i] = Vector2<double>(0, 0);
+        shapes[i] = sf::CircleShape(30);
+        shapes[i].setPosition(positions[i].x, positions[i].y);
+        shapes[i].setFillColor(sf::Color(51, 102, 204));
+    }
     sf::Clock clock;
     while (window.isOpen())
     {
@@ -32,29 +41,31 @@ int main()
         }
 
         double time = clock.getElapsedTime().asSeconds() / 100;
-        velosity += Vdown * gravity * time;
-        position += velosity * time;
-
-        if (position.x < 0) {
-            position.x = 0;
-            velosity *= -1;
-        }
-        if (position.y < 0) {
-            position.y = 0;
-            velosity *= -1;
-        }
-        if (position.x > geo::width-2*shape.getRadius()) {
-            position.x = geo::width- 2 * shape.getRadius();
-            velosity *= -1;
-        }
-        if (position.y > geo::height- 2 * shape.getRadius()) {
-            position.y = geo::height - 2 * shape.getRadius();
-            velosity *= -1;
-        }
-
-        shape.setPosition(position.x, position.y);
         window.clear();
-        window.draw(shape);
+        for (unsigned int i = 0; i < positions.size(); i++) {
+            velocities[i] += Vdown * gravity * time;
+            positions[i] += velocities[i] * time;
+       
+            if (positions[i].x < 0) {
+                positions[i].x = 0;
+                velocities[i] *= -1;
+            }
+            if (positions[i].y < 0) {
+                positions[i].y = 0;
+                velocities[i] *= -1;
+            }
+            if (positions[i].x > geo::width - 2 * shapes[i].getRadius()) {
+                positions[i].x = geo::width - 2 * shapes[i].getRadius();
+                velocities[i] *= -1;
+            }
+            if (positions[i].y > geo::height - 2 * shapes[i].getRadius()) {
+                positions[i].y = geo::height - 2 * shapes[i].getRadius();
+                velocities[i] *= -1;
+            }
+
+            shapes[i].setPosition(positions[i].x, positions[i].y);
+            window.draw(shapes[i]);
+        }
         window.display();
         Sleep(2);
     }
