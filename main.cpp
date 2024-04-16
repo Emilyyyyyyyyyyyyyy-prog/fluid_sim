@@ -19,6 +19,23 @@ int n = 5;
 std::vector<Vector2<double>> positions(n);
 std::vector<Vector2<double>> velocities(n);
 
+void start() {
+    std::vector<Vector2<double>> positions_start(num_particles);
+    std::vector<Vector2<double>> velocities_start(num_particles);
+
+    int particle_size = 5, particle_spacing = 10;
+
+    int particles_per_row = (int)sqrt(num_particles);
+    int particles_per_col = (num_particles - 1) / particles_per_row + 1;
+    float spacing = particle_size * 2 + particle_spacing;
+
+    for (int i = 0; i < num_particles; i++) {
+        float x = (i % particles_per_row - particles_per_row / 2 + 0.5) * spacing;
+        float y = (i / particles_per_row - particles_per_col / 2 + 0.5) * spacing;
+        positions_start[i] = Vector2<double>(x, y);
+    }
+}
+
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(geo::width, geo::height), "Fluid Model!");
