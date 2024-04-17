@@ -11,13 +11,17 @@ namespace geo {
     const int height = 500;
 }
 double gravity = 9.81;
-//Vector2<double> velosity(0, 0);
-//Vector2<double> position(geo::width / 2, geo::height / 2);
 Vector2<double> Vdown(0, 1);
 
-int n = 5;
+int n = 5, num_particles = 2;
+float smoothing_radius = 25;
+float PI = 10;
+
+const float mass = 1;
+
 std::vector<Vector2<double>> positions(n);
 std::vector<Vector2<double>> velocities(n);
+std::vector<float> particle_properties(num_particles);
 
 void start() {
     std::vector<Vector2<double>> positions_start(num_particles);
@@ -36,20 +40,68 @@ void start() {
     }
 }
 
+float smoothing_kernel(float radius, float dst) {
+    float volume = PI * pow(radius, 8) / 4;
+    float value = (0 < radius * radius - dst * dst) ? radius * radius - dst * dst : 0;
+    return value * value * value / volume;
+}
+
+float calculate_density(Vector2<double> sample_point) {
+    float density = 0;
+
+    for (auto pos : positions) {
+        Vector2<double> d = pos - sample_point;
+        float dst = sqrt(d.x * d.x + d.y * d.y);
+        float influence = smoothing_kernel(smoothing_radius, dst);
+        density += mass * influence;
+    }
+
+    return density;
+}
+
+float example_function(Vector2<double> pos) {
+    return cos(pos.y - 3 * sin(pos.x));
+}
+
+void create_particles(int seed) {
+    int rng = rand() % (seed + 1);
+    std::vector<Vector2<double>> create_positions(num_particles);
+
+    for (unsigned int i = 0; i < create_positions.size(); i++) {
+        float x = (float)(rand() / RAND_MAX - 0.5) * geo::width;
+        float y = (float)(rand() / RAND_MAX - 0.5) * geo::height;
+        create_positions[i] = Vector2<double>(x, y);
+        particle_properties[i] = example_function(create_positions[i]);
+    }
+}
+
+float calculate_property(Vector2<double> sample_point) {
+    float property = 0;
+    for (int i = 0; i < num_particles; i++) {
+        Vector2<double> d = positions[i] - sample_point;
+        float dst = sqrt(d.x * d.x + d.y + d.y);
+        float influence = smoothing_kernel(dst, smoothing_radius);
+        property += particle_properties[i] * influence * mass;
+    }
+    return property;
+}
+
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(geo::width, geo::height), "Fluid Model!");
     std::vector<sf::CircleShape> shapes(n);
     for (unsigned int i = 0; i < positions.size(); i++) {
-        positions[i] = Vector2<double>(geo::width / 2 + i * 30, geo::height / 2);
+        positions[i] = Vector2<double>(geo::width / 2, geo::height / 2 - i * 5);
         velocities[i] = Vector2<double>(0, 0);
-        shapes[i] = sf::CircleShape(30);
+        shapes[i] = sf::CircleShape(20);
         shapes[i].setPosition(positions[i].x, positions[i].y);
         shapes[i].setFillColor(sf::Color(51, 102, 204));
     }
     sf::Clock clock;
     while (window.isOpen())
     {
+
+
         sf::Event event;
         while (window.pollEvent(event))
         {
