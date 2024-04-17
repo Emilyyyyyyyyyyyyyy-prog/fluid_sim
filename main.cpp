@@ -12,16 +12,22 @@ namespace geo {
 }
 double gravity = 9.81;
 Vector2<double> Vdown(0, 1);
+Vector2<double> Vup(0, -1);
+Vector2<double> Vright(1, 0);
+Vector2<double> Vleft(-1, 0);
+Vector2<double> Vzero(0, 0);
 
-int n = 5, num_particles = 2;
+
+int n = 30, num_particles = 2, start_radius = 8;
 float smoothing_radius = 25;
 float PI = 10;
 
-const float mass = 1;
+const float mass = 0.15;
 
 std::vector<Vector2<double>> positions(n);
 std::vector<Vector2<double>> velocities(n);
 std::vector<float> particle_properties(num_particles);
+std::vector<float> densities(num_particles);
 
 void start() {
     std::vector<Vector2<double>> positions_start(num_particles);
@@ -40,10 +46,17 @@ void start() {
     }
 }
 
-float smoothing_kernel(float radius, float dst) {
+static float smoothing_kernel(float radius, float dst) {
     float volume = PI * pow(radius, 8) / 4;
     float value = (0 < radius * radius - dst * dst) ? radius * radius - dst * dst : 0;
     return value * value * value / volume;
+}
+
+static float smoothing_kernel_derivative(float dst, float radius) {
+    if (dst >= radius) return 0;
+    float f = radius * radius - dst * dst;
+    float scale = -24 / (PI * pow(radius, 8));
+    return scale * dst * f * f;
 }
 
 float calculate_density(Vector2<double> sample_point) {
@@ -81,9 +94,30 @@ float calculate_property(Vector2<double> sample_point) {
         Vector2<double> d = positions[i] - sample_point;
         float dst = sqrt(d.x * d.x + d.y + d.y);
         float influence = smoothing_kernel(dst, smoothing_radius);
-        property += particle_properties[i] * influence * mass;
+        float density = calculate_density(positions[i]);
+        property += particle_properties[i] * influence * mass / density;
     }
     return property;
+}
+
+Vector2<double> calculate_property_gradient(Vector2<double> sample_point) {
+    Vector2<double> property_gradient = Vzero;
+
+    for (int i = 0; i < num_particles; i++) {
+        Vector2<double> d = positions[i] - sample_point;
+        float dst = sqrt(d.x * d.x + d.y * d.y);
+        Vector2<double> dir = (positions[i] - sample_point) / dst;
+        float influence = smoothing_kernel_derivative(dst, smoothing_radius);
+        float density = densities[i];
+        property_gradient += dir * (-1) * particle_properties[i] * influence * mass / density;
+    }
+    return property_gradient;
+}
+
+void update_densities() {
+    for (int i = 0; i < num_particles; i++) {
+        densities[i] = calculate_density(positions[i]);
+    }
 }
 
 int main()
@@ -91,9 +125,9 @@ int main()
     sf::RenderWindow window(sf::VideoMode(geo::width, geo::height), "Fluid Model!");
     std::vector<sf::CircleShape> shapes(n);
     for (unsigned int i = 0; i < positions.size(); i++) {
-        positions[i] = Vector2<double>(geo::width / 2, geo::height / 2 - i * 5);
+        positions[i] = Vector2<double>(geo::width / 2, geo::height / 2 - i * start_radius / 2);
         velocities[i] = Vector2<double>(0, 0);
-        shapes[i] = sf::CircleShape(20);
+        shapes[i] = sf::CircleShape(start_radius);
         shapes[i].setPosition(positions[i].x, positions[i].y);
         shapes[i].setFillColor(sf::Color(51, 102, 204));
     }
