@@ -18,14 +18,16 @@ Vector2<double> Vleft(-1, 0);
 Vector2<double> Vzero(0, 0);
 
 
-int n = 30, num_particles = 2, start_radius = 8;
-float smoothing_radius = 25;
+int num_particles = 400, start_radius = 2;
+float smoothing_radius = 1.2;
 float PI = 10;
+
+float target_density = 2.75, pressure_multiplier = 0.5;
 
 const float mass = 0.15;
 
-std::vector<Vector2<double>> positions(n);
-std::vector<Vector2<double>> velocities(n);
+std::vector<Vector2<double>> positions(num_particles);
+std::vector<Vector2<double>> velocities(num_particles);
 std::vector<float> particle_properties(num_particles);
 std::vector<float> densities(num_particles);
 
@@ -47,16 +49,17 @@ void start() {
 }
 
 static float smoothing_kernel(float radius, float dst) {
-    float volume = PI * pow(radius, 8) / 4;
-    float value = (0 < radius * radius - dst * dst) ? radius * radius - dst * dst : 0;
-    return value * value * value / volume;
+    if (dst >= radius) return 0;
+
+    float volume = PI * pow(radius, 4) / 6;
+    return (radius - dst) * (radius - dst) / volume;
 }
 
 static float smoothing_kernel_derivative(float dst, float radius) {
     if (dst >= radius) return 0;
-    float f = radius * radius - dst * dst;
-    float scale = -24 / (PI * pow(radius, 8));
-    return scale * dst * f * f;
+
+    float scale = 12 / (PI * pow(radius, 4));
+    return (dst - radius) * scale;
 }
 
 float calculate_density(Vector2<double> sample_point) {
@@ -100,18 +103,34 @@ float calculate_property(Vector2<double> sample_point) {
     return property;
 }
 
-Vector2<double> calculate_property_gradient(Vector2<double> sample_point) {
-    Vector2<double> property_gradient = Vzero;
+float convert_densuty_to_pressure(float density) {
+    float density_error = density - target_density;
+    float pressure = density_error * pressure_multiplier;
+    return pressure;
+}
 
-    for (int i = 0; i < num_particles; i++) {
-        Vector2<double> d = positions[i] - sample_point;
-        float dst = sqrt(d.x * d.x + d.y * d.y);
-        Vector2<double> dir = (positions[i] - sample_point) / dst;
-        float influence = smoothing_kernel_derivative(dst, smoothing_radius);
-        float density = densities[i];
-        property_gradient += dir * (-1) * particle_properties[i] * influence * mass / density;
+float calculate_shared_pressure(float densityA, float densityB) {
+    float pressureA = convert_densuty_to_pressure(densityA);
+    float pressureB = convert_densuty_to_pressure(densityB);
+    return (pressureA + pressureB) / 2;
+}
+
+Vector2<double> calculate_pressure_force(int particle_index) {
+    Vector2<double> pressure_force = Vzero;
+
+    for (int other_index = 0; other_index < num_particles; other_index++) {
+        if (particle_index == other_index) continue;
+
+        Vector2<double> offset = positions[other_index] - positions[particle_index];
+        float dst = sqrt(offset.x * offset.x + offset.y + offset.y);
+        Vector2<double> dir = dst == 0 ? rand() : offset / dst;
+
+        float slope = smoothing_kernel_derivative(dst, smoothing_radius);
+        float density = densities[other_index];
+        float shared_pressure = calculate_shared_pressure(density, densities[particle_index]);
+        pressure_force += dir * convert_densuty_to_pressure(density) * slope * mass / density;
     }
-    return property_gradient;
+    return pressure_force;
 }
 
 void update_densities() {
@@ -120,10 +139,27 @@ void update_densities() {
     }
 }
 
+void simulation_step(float dtime) {
+    for (int i = 0; i < num_particles; i++) {
+        velocities[i] += Vdown * gravity * dtime;
+        densities[i] = calculate_density(positions[i]);
+    }
+
+    for (int i = 0; i < num_particles; i++) {
+        Vector2<double> pressure_force = calculate_pressure_force(i);
+        Vector2<double> pressure_acceleration = pressure_force / densities[i];
+        velocities[i] = pressure_acceleration * dtime;
+    }
+
+    for (int i = 0; i < num_particles; i++) {
+        positions[i] += velocities[i] * dtime;
+    }
+}
+
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(geo::width, geo::height), "Fluid Model!");
-    std::vector<sf::CircleShape> shapes(n);
+    std::vector<sf::CircleShape> shapes(num_particles);
     for (unsigned int i = 0; i < positions.size(); i++) {
         positions[i] = Vector2<double>(geo::width / 2, geo::height / 2 - i * start_radius / 2);
         velocities[i] = Vector2<double>(0, 0);
