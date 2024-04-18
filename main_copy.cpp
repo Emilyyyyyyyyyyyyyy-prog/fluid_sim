@@ -13,18 +13,22 @@ template <typename T> int sign(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
-int NumParticles;
-double gravity;
-double CollisionDamping;
-double ParticleSize;
-double ParticleSpacing;
-double x, y;
+std::vector<double> startData({ 3, 9.8, 0.7, 0.7, 0.5, 20, 20 });
+
+int NumParticles = startData[0];
+double gravity = startData[1];
+double CollisionDamping = startData[2];
+double ParticleSize = startData[3];
+double ParticleSpacing = startData[4];
+double x = startData[5], y = startData[6];
 double widht = 600, hight = 600;
 
-
-Vector2<double> velocity(0, 0);
-Vector2<double> position(300, 300);
 Vector2<double> Vdown(0, 1);
+
+std::vector<Vector2<double>> positions;
+std::vector<Vector2<double>> velocities;
+std::vector<sf::CircleShape> shapes;
+
 
 int main()
 {
@@ -44,14 +48,6 @@ int main()
     vessel.setFillColor(sf::Color::Black);
     vessel.setOutlineThickness(1);
     vessel.setOutlineColor(sf::Color::Green);
-
-    position.x = window.getSize().x / 2;
-    position.y = window.getSize().y / 2;
-
-    //создаём частицу
-    sf::CircleShape shape(30);
-    shape.setPosition(position.x, position.y);
-    shape.setFillColor(sf::Color(51, 102, 204));
 
     //создаём окно настроек
     sf::RenderWindow settings(sf::VideoMode(400, 230), "Settings!");
@@ -157,7 +153,6 @@ int main()
 
     bool flag = false;
     std::vector<bool> activ(7, false);
-    std::vector<double> startData({ 3, 9.8, 0.7, 0.7, 0.5, 20, 20 });
 
     while (window.isOpen())
     {
@@ -265,6 +260,17 @@ int main()
                         std::cout << startData[i] << ' ';
                     }
                     std::cout << std::endl;
+
+                    for (unsigned int i = 0; i < NumParticles; i++) {
+                        Vector2<double> position = Vector2<double>(window.getSize().x / 2, window.getSize().y / 2 - i * ParticleSize / 2);
+                        positions.push_back(position);
+                        Vector2<double> velocitie = Vector2<double>(0, 0);
+                        velocities.push_back(velocitie);
+                        sf::CircleShape shape = sf::CircleShape(ParticleSize);
+                        shape.setPosition(positions[i].x, positions[i].y);
+                        shape.setFillColor(sf::Color(51, 102, 204));
+                        shapes.push_back(shape);
+                    }
                 }
                 if (event.mouseButton.button == sf::Mouse::Left &&
                     buttonStop.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
@@ -272,10 +278,13 @@ int main()
                 }
                 if (event.mouseButton.button == sf::Mouse::Left &&
                     buttonRound.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
-                    position.x = window.getSize().x / 2;
-                    position.y = window.getSize().y / 2;
-                    velocity.x = 0;
-                    velocity.y = 0;
+                    for (unsigned int i = 0; i < positions.size(); i++) {
+                        positions[i] = Vector2<double>(window.getSize().x / 2, window.getSize().y / 2 - i * ParticleSize / 2);
+                        velocities[i] = Vector2<double>(0, 0);
+                        shapes[i] = sf::CircleShape(ParticleSize);
+                        shapes[i].setPosition(positions[i].x, positions[i].y);
+                        shapes[i].setFillColor(sf::Color(51, 102, 204));
+                    }
                 }
             }
         }
@@ -297,9 +306,9 @@ int main()
         }
         settings.draw(labelBoundsSize);
 
-        NumParticles = static_cast<int>(startData[0]);
+        NumParticles = startData[0];
         gravity = startData[1];
-        CollisionDamping = static_cast<double>(startData[2]);
+        CollisionDamping = startData[2];
         ParticleSize = startData[3];
         ParticleSpacing = startData[4];
         x = startData[5], y = startData[6];
@@ -310,39 +319,41 @@ int main()
                 window.close();
         }
 
-        if (flag) {
-            double time = clock.getElapsedTime().asSeconds() / 100;
-            velocity += Vdown * gravity * time;
-            position += velocity * time;
-
-            if (position.x < window.getSize().x / 2 - vessel.getSize().x / 2 + shape.getRadius()) {
-                position.x = window.getSize().x / 2 - vessel.getSize().x / 2 + shape.getRadius();
-                velocity *= -1;
-            }
-            if (position.y < window.getSize().y / 2 - vessel.getSize().y / 2 + shape.getRadius()) {
-                position.y = window.getSize().y / 2 - vessel.getSize().y / 2 + shape.getRadius();
-                velocity *= -1;
-            }
-
-            if (position.x > window.getSize().x / 2 + vessel.getSize().x / 2 - shape.getRadius()) {
-                position.x = window.getSize().x / 2 + vessel.getSize().x / 2 - shape.getRadius();
-                velocity *= -1;
-            }
-            if (position.y > window.getSize().y / 2 + vessel.getSize().y / 2 - shape.getRadius()) {
-                position.y = window.getSize().y / 2 + vessel.getSize().y / 2 - shape.getRadius();
-                velocity *= -1;
-            }
-        }
-
-        shape.setRadius(ParticleSize);
-        shape.setOrigin(shape.getRadius(), shape.getRadius());
-        shape.setPosition(position.x, position.y);
+        window.clear();
         vessel.setSize(sf::Vector2f(x, y));
         vessel.setOrigin(x / 2, y / 2);
         vessel.setPosition(window.getSize().x / 2, window.getSize().y / 2);
-        window.clear();
         window.draw(vessel);
-        window.draw(shape);
+        if (flag) {
+            double time = clock.getElapsedTime().asSeconds() / 100;
+            for (unsigned int i = 0; i < NumParticles; i++) {
+
+                velocities[i] += Vdown * gravity * time;
+                positions[i] += velocities[i] * time;
+
+                if (positions[i].x < window.getSize().x / 2 - vessel.getSize().x / 2 + shapes[i].getRadius()) {
+                    positions[i].x = window.getSize().x / 2 - vessel.getSize().x / 2 + shapes[i].getRadius();
+                    velocities[i] *= -1;
+                }
+                if (positions[i].y < window.getSize().y / 2 - vessel.getSize().y / 2 + shapes[i].getRadius()) {
+                    positions[i].y = window.getSize().y / 2 - vessel.getSize().y / 2 + shapes[i].getRadius();
+                    velocities[i] *= -1;
+                }
+
+                if (positions[i].x > window.getSize().x / 2 + vessel.getSize().x / 2 - shapes[i].getRadius()) {
+                    positions[i].x = window.getSize().x / 2 + vessel.getSize().x / 2 - shapes[i].getRadius();
+                    velocities[i] *= -1;
+                }
+                if (positions[i].y > window.getSize().y / 2 + vessel.getSize().y / 2 - shapes[i].getRadius()) {
+                    positions[i].y = window.getSize().y / 2 + vessel.getSize().y / 2 - shapes[i].getRadius();
+                    velocities[i] *= -1;
+                }
+                shapes[i].setOrigin(ParticleSize, ParticleSize);
+                shapes[i].setPosition(positions[i].x, positions[i].y);
+                window.draw(shapes[i]);
+            }
+        }
+
         window.display();
         settings.display();
         settings.setPosition(sf::Vector2i(window.getPosition().x + window.getSize().x - settings.getSize().x, window.getPosition().y + 40));
