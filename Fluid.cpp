@@ -1,9 +1,10 @@
 #include "Fluid.h"
 #include <iostream>
 
+
 Fluid::Fluid() {}
 
-
+//constructor 
 Fluid::Fluid(int f_xSize, int f_ySize, float f_diff, float f_visc, float f_dt, int f_solverIterations) {
 	this->xSize = f_xSize;
 	this->ySize = f_ySize;
@@ -24,7 +25,9 @@ Fluid::Fluid(int f_xSize, int f_ySize, float f_diff, float f_visc, float f_dt, i
 	this->p.set(this->xSize, this->ySize);
 }
 
+//update screen
 void Fluid::update() {
+	//update velocities
 	for (int x = 1; x <= this->xSize; x++) {
 		for (int y = 1; y <= this->ySize; y++) {
 			this->u0.values[x + y * (this->xSize + 2)] = this->uSource.values[x + y * (this->xSize + 2)];
@@ -41,6 +44,7 @@ void Fluid::update() {
 	advectVelocity();
 	projectVelocity();
 
+	//update densities
 	for (int x = 1; x <= this->xSize; x++) {
 		for (int y = 1; y <= this->ySize; y++) {
 			this->density0.values[x + y * (this->xSize + 2)] += this->densitySource.values[x + y * (this->xSize + 2)];
@@ -54,6 +58,7 @@ void Fluid::update() {
 
 }
 
+//restart simulation
 void Fluid::reset() {
 	for (int x = 1; x <= this->xSize; x++) {
 		for (int y = 1; y <= this->ySize; y++) {
@@ -67,7 +72,8 @@ void Fluid::reset() {
 	}
 }
 
-void Fluid::render(int size, sf::Image& image) {//draw pixel by pixel
+//draw pixel by pixel
+void Fluid::render(int size, sf::Image& image) {
 	for (int x = 0; x <= this->xSize + 1; x++) {
 		for (int y = 0; y <= this->ySize + 1; y++) {
 			if (this->density.values[x + y * (this->xSize + 2)] > 1) {
@@ -84,6 +90,8 @@ void Fluid::render(int size, sf::Image& image) {//draw pixel by pixel
 		}
 	}
 }
+
+//add source of fluid when mouse button will be pressed
 void Fluid::addSource(int x0, int y0, int x1, int y1) {
 	int dx = x1 - x0;
 	int dy = y1 - y0;
@@ -93,9 +101,11 @@ void Fluid::addSource(int x0, int y0, int x1, int y1) {
 			yi = -1;
 			dy = -dy;
 		}
+		//diffusion coefficient D
 		int D = 2 * dy - dx;
 		int y = y0;
 		int elementID = 0;
+		//set values for the source by x
 		if (dx > 0) {
 			for (int x = x0; x <= x1; x++) {
 				elementID = x + (this->xSize + 2) * y;
@@ -124,7 +134,7 @@ void Fluid::addSource(int x0, int y0, int x1, int y1) {
 			}
 		}
 	}
-	else if (abs(dy) > abs(dx)) {
+	else {
 		int xi = 1;
 		if (dx < 0) {
 			xi = -1;
@@ -133,6 +143,7 @@ void Fluid::addSource(int x0, int y0, int x1, int y1) {
 		int D = 2 * dx - dy;
 		int x = x0;
 		int elementID = 0;
+		//set values for the source by y
 		if (dy > 0) {
 			for (int y = y0; y <= y1; y++) {
 				elementID = x + (this->xSize + 2) * y;
@@ -163,6 +174,7 @@ void Fluid::addSource(int x0, int y0, int x1, int y1) {
 	}
 }
 
+//diffuse velocity by x(u) and y(v)
 void Fluid::diffuseVelocity() {
 	for (int x = 1; x <= this->xSize; x++) {
 		for (int y = 1; y <= this->ySize; y++) {
@@ -170,6 +182,7 @@ void Fluid::diffuseVelocity() {
 				(0.25 * this->u.values[x - 1 + y * (this->xSize + 2)] + 0.25 * this->u.values[x + 1 + y * (this->xSize + 2)] +
 				0.25 * this->u.values[x + (y - 1) * (this->xSize + 2)] + 0.25 * this->u.values[x + (y + 1) * (this->xSize + 2)] - 
 					this->u0.values[x + y * (this->xSize + 2)]);
+
 			this->v.values[x + y * (this->xSize + 2)] = this->v0.values[x + y * (this->xSize + 2)] + this->viscosity * 
 				(0.25 * this->v.values[x - 1 + y * (this->xSize + 2)] + 0.25 * this->v.values[x + 1 + y * (this->xSize + 2)] +
 				0.25 * this->v.values[x + (y - 1) * (this->xSize + 2)] + 0.25 * this->v.values[x + (y + 1) * (this->xSize + 2)] -
@@ -180,7 +193,7 @@ void Fluid::diffuseVelocity() {
 	setBoundary(2, this->v);
 }
 
-
+//velocity propagation, we set the projections of accelerations at a point
 void Fluid::advectVelocity() {
 	for (int x = 1; x <= this->xSize; x++) {
 		for (int y = 1; y <= this->ySize; y++) {
@@ -196,6 +209,7 @@ void Fluid::advectVelocity() {
 			double t1 = 0;
 			float dt0 = dt * (this->xSize);
 
+			//accelerations
 			ax = x - dt0 * this->u.values[x + this->xSize * y];
 			ay = y - dt0 * this->v.values[x + this->xSize * y];
 			if (ax < 0.5) {
@@ -204,6 +218,7 @@ void Fluid::advectVelocity() {
 			if (ax > this->xSize + 0.5) {
 				ax = this->xSize + 0.5;
 			}
+			//borders of acceleration
 			ax0 = (int)ax;
 			ax1 = ax0 + 1;
 			if (ay < 0.5) {
@@ -221,6 +236,7 @@ void Fluid::advectVelocity() {
 			this->u.values[x + (this->xSize + 2) * y] = s0 * (t0 * this->u0.values[ax0 + ay0 * (this->xSize + 2)] +
 				t1 * this->u0.values[ax0 + ay1 * (this->xSize + 2)]) +
 				s1 * (t0 * this->u0.values[ax1 + ay0 * (this->xSize + 2)] + t1 * this->u0.values[ax1 + ay1 * (this->xSize + 2)]);
+
 			this->v.values[x + y * (this->xSize + 2)] = s0 * (t0 * this->v0.values[ax0 + ay0 * (this->xSize + 2)] + 
 				t1 * this->v0.values[ax0 + ay1 * (this->xSize + 2)]) +
 				s1 * (t0 * this->v0.values[ax1 + ay0 * (this->xSize + 2)] + t1 * this->v0.values[ax1 + ay1 * (this->xSize + 2)]);
@@ -230,11 +246,11 @@ void Fluid::advectVelocity() {
 	setBoundary(2, this->v);
 }
 
-
+//velocity projection
 void Fluid::projectVelocity() {
+	//normal line
 	float h = 1.0 / this->xSize;
-
-	//project
+	//setting division and pressure
 	for (int i = 1; i <= this->xSize; i++) {
 		for (int j = 1; j <= this->ySize; j++) {
 			this->div.values[i + j * (this->xSize + 2)] = -0.5 * h * (this->u.values[i + 1 + j * (this->xSize + 2)] - 
@@ -246,6 +262,7 @@ void Fluid::projectVelocity() {
 	setBoundary(1, this->u);
 	setBoundary(2, this->v);
 
+	//summation of pressure by direction
 	for (int k = 0; k < this->solverIterations; k++) {
 		for (int i = 1; i <= this->xSize; i++) {
 			for (int j = 1; j <= this->ySize; j++) {
@@ -257,6 +274,7 @@ void Fluid::projectVelocity() {
 	}
 	setBoundary(0, this->density);
 
+	//calculation of velocities
 	for (int i = 1; i <= this->xSize; i++) {
 		for (int j = 1; j <= this->ySize; j++) {
 			this->u.values[i + j * (this->xSize + 2)] -= 0.5 * (this->p.values[i + 1 + j * (this->xSize + 2)] - 
@@ -269,7 +287,7 @@ void Fluid::projectVelocity() {
 	setBoundary(2, this->v);
 }
 
-
+//density change through diffusion
 void Fluid::diffuseDensity() {
 	for (int x = 1; x <= this->xSize; x++) {
 		for (int y = 1; y <= this->ySize; y++) {
@@ -282,9 +300,8 @@ void Fluid::diffuseDensity() {
 	setBoundary(0, this->density);
 }
 
-
+//similar to advectVelocities
 void Fluid::advectDensity() {
-
 	double ax = 0;
 	double ay = 0;
 	int ax0 = 0;
@@ -329,22 +346,15 @@ void Fluid::advectDensity() {
 	setBoundary(0, this->density);
 }
 
-void Fluid::setBoundary(int d, Field f)
-{
+//make and set boundary of Field
+void Fluid::setBoundary(int d, Field f) {
 	for (int i = 1; i <= this->xSize; i++) {
 		f.values[0 + (this->xSize + 2) * i] = (d == 1 ? -f.values[1 + (this->xSize + 2) * i] : f.values[1 + (this->xSize + 2) * i]);
 		f.values[(this->xSize + 1) + (this->xSize + 2) * i] = (d == 1 ? -f.values[this->xSize + (this->xSize + 2) * i] : f.values[this->xSize + (this->xSize + 2) * i]);
 		f.values[i + (this->xSize + 2) * 0] = (d == 2 ? -f.values[i + (this->xSize + 2) * 1] : f.values[i + (this->xSize + 2) * 1]);
 		f.values[i + (this->xSize + 2) * (this->xSize + 1)] = (d == 2 ? -f.values[i + (this->xSize + 2) * (this->xSize)] : f.values[i + (this->xSize + 2) * (this->xSize)]);
-		/*v.values[0 + (xSize + 2)*i] = 0;
-		v.values[(xSize+1) + (xSize + 2)*i] = 0;
-		v.values[i + (xSize + 2) * 0] = 0;
-		v.values[i + (xSize + 2) * (xSize + 1)] = 0;
-		u.values[0 + (xSize + 2)*i] = 0;
-		u.values[(xSize+1) + (xSize + 2)*i] = 0;
-		u.values[i + (xSize + 2) * 0] = 0;
-		u.values[i + (xSize + 2) * (xSize + 1)] = 0;*/
 	}
+
 	f.values[0 + (this->xSize + 2) * 0] = 0.5 * (f.values[1 + (this->xSize + 2) * 0] + f.values[0 + (this->xSize + 2) * 1]);
 	f.values[0 + (this->xSize + 2) * (this->xSize + 1)] = 0.5 * (f.values[1 + (this->xSize + 2) * (this->xSize + 1)] + f.values[0 + (this->xSize + 2) * (this->xSize)]);
 	f.values[this->xSize + 1 + 0] = 0.5 * (f.values[this->xSize + 0] + f.values[this->xSize + 1 + 1]);
@@ -352,6 +362,7 @@ void Fluid::setBoundary(int d, Field f)
 
 }
 
+//swap memories of two point(values of two Fields)
 void Fluid::swapPointers(float*& x0, float*& x1) {
 	float* memory = x0;
 	x0 = x1;
