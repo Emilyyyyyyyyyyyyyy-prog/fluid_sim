@@ -1,19 +1,21 @@
 #include "Field.h"
 #include <SFML/Graphics.hpp>
+#include <iostream>
 
 class Fluid {
 private:
-	//Field property declarations
-	Field u, u0, uSource;
-	Field v, v0, vSource;
+	//field property declarations
+	//here we use 1) without index - parameters of a specific point; 2) with index 0 - initial movement; 3) with index source - parameters of sources
+	Field u, u0, uSource;  //x_speed
+	Field v, v0, vSource;  //y_speed
 	Field density, density0, densitySource;
-	Field div, p;
+	Field div, p; //division, pressure
 
-	//Physical property declarations
+	//physical property declarations
 	float diffusion;
 	float viscosity;
 
-	//Simulation parameters
+	//simulation parameters
 	float dt;
 	int solverIterations;
 	int xSize, ySize;
