@@ -345,7 +345,6 @@ int main() {
 						rectLine.setPosition(rectLine.getPosition().x - 250, rectLine.getPosition().y);
 						flagMenu = false;
 					}
-					std::cout << 1 << std::endl;
 				}
 				if (event.mouseButton.button == sf::Mouse::Left && !flagClose &&
 					rectSet.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
@@ -355,7 +354,6 @@ int main() {
 						rectLine.setPosition(rectLine.getPosition().x - 250, rectLine.getPosition().y);
 						flagMenu = false;
 					}
-					std::cout << 2 << std::endl;
 				}
 				if (event.mouseButton.button == sf::Mouse::Left && !flagClose &&
 					rectOut.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
@@ -381,7 +379,6 @@ int main() {
 					rectOut.setPosition(x, y);
 					labelOut.setPosition(x - 35, y - 30);
 					rectLine.setPosition(rectLine.getPosition().x - 250, rectLine.getPosition().y);
-					std::cout << 1 << std::endl;
 				}
 				if (event.mouseButton.button == sf::Mouse::Left && !flagMenu &&
 					rectMenu.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
