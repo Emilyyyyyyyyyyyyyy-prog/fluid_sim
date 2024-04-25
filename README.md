@@ -19,9 +19,9 @@
 
 Нет?! Ну так и быть( Для любителей помучаться можем предложить следующий вариант:
 
-1. Скачайте **[Visual Studio]https://visualstudio.microsoft.com/ru/**
-2. Далее скачайте библиотеку **[SFML]https://www.sfml-dev.org/download.php**
-3. Теперь необходимо подключить SFML к VS. Вот отличная **[инструкция]https://www.youtube.com/watch?v=aSS7C85CYww**
+1. Скачайте **[Visual Studio](https://visualstudio.microsoft.com/ru/)**
+2. Далее скачайте библиотеку **[SFML](https://www.sfml-dev.org/download.php)**
+3. Теперь необходимо подключить SFML к VS. Вот отличная **[инструкция](https://www.youtube.com/watch?v=aSS7C85CYww)**
 4. В терминале VS склонируйте этот репозиторий(команда из 3 пункта по установке на линукс)
 Отлично, можете запускать!
 
