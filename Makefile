@@ -14,6 +14,6 @@ Field.o: Field.cpp Field.h
 Fluid.o: Fluid.cpp Fluid.h Field.o Field.h
 	g++ -c Fluid.cpp Field.o -o Fluid.o
 
-main.o: main.cpp Fluid.o
+main.o: main.cpp Fluid.o Fonts/PIXY.ttf
 	g++ -c main.cpp -o main.o
 

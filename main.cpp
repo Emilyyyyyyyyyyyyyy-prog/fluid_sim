@@ -1,7 +1,8 @@
 #include <SFML/Graphics.hpp>
-#include <iostream>
-#include <windows.h>
 #include <string>
+#include <chrono>
+#include <iostream>
+#include <thread>
 #include "Fluid.h"
 
 int main() {
@@ -49,7 +50,6 @@ int main() {
 	bool flagMig = true, flagMenu = false, flagClose = false, flagJet = false, flagGo = false;
 
 	//flag == 0
-	//main screensaver
 	sf::Text labelMain;
 	labelMain.setFont(font);
 	labelMain.setString("Diffusion Simulation");
@@ -57,7 +57,7 @@ int main() {
 	labelMain.setFillColor(sf::Color::White);
 	labelMain.setPosition(400, 50);
 
-	//main buttons: start, settings, exit
+	//кнопки главного меню
 	sf::RectangleShape rectRun(sf::Vector2f(300, 40));
 	rectRun.setOrigin(150, 20);
 	rectRun.setFillColor(sf::Color::Black);
@@ -124,7 +124,6 @@ int main() {
 	labelVers.setPosition(window.getSize().x - 160, window.getSize().y - 40);
 
 	//flag == 1
-	//on the page start
 	sf::RectangleShape rectLine(sf::Vector2f(2, window.getSize().y - 20));
 	rectLine.setFillColor(sf::Color(102, 102, 102));
 	rectLine.setPosition(70, 10);
@@ -146,7 +145,6 @@ int main() {
 	rectM3.setPosition(14, 58);
 
 	//flagClose == true
-	//closing window and two buttons yes or no
 	sf::RectangleShape rectClose(sf::Vector2f(600, 150));
 	rectClose.setFillColor(sf::Color::Black);
 	rectClose.setOrigin(300, 125);
@@ -190,14 +188,14 @@ int main() {
 	labelNo.setPosition(rectNo.getPosition().x - 20, rectNo.getPosition().y - 30);
 
 	//flag == 2
-	//diffusion input
+	//поле ввода
 	sf::RectangleShape rectInput1(sf::Vector2f(300, 40));
 	rectInput1.setOrigin(rectInput1.getSize().x / 2, rectInput1.getSize().y / 2);
 	rectInput1.setPosition(window.getSize().x / 2 + 160, window.getSize().y / 2 - 50);
 	rectInput1.setFillColor(sf::Color::Black);
 	rectInput1.setOutlineThickness(2);
 	rectInput1.setOutlineColor(sf::Color(102, 102, 102));
-	
+	//ввод текста
 	sf::Text inputText1;
 	inputText1.setFont(font);
 	inputText1.setString("0.07");
@@ -206,7 +204,7 @@ int main() {
 	inputText1.setPosition(rectInput1.getPosition().x - 140, rectInput1.getPosition().y - 30);
 	bool textEntered1 = false;
 	int count1 = 4;
-	
+	//им€ €чейки
 	sf::Text labelInput1;
 	labelInput1.setFont(font);
 	labelInput1.setString("Diffusion coefficient");
@@ -215,14 +213,14 @@ int main() {
 	labelInput1.setPosition(rectInput1.getPosition().x - 600, rectInput1.getPosition().y - 30);
 	bool activ1 = false;
 
-	//viscosity input
+	//поле ввода
 	sf::RectangleShape rectInput2(sf::Vector2f(300, 40));
 	rectInput2.setOrigin(rectInput1.getSize().x / 2, rectInput1.getSize().y / 2);
 	rectInput2.setPosition(window.getSize().x / 2 + 160, window.getSize().y / 2);
 	rectInput2.setFillColor(sf::Color::Black);
 	rectInput2.setOutlineThickness(2);
 	rectInput2.setOutlineColor(sf::Color(102, 102, 102));
-	
+	//ввод текста
 	sf::Text inputText2;
 	inputText2.setFont(font);
 	inputText2.setString("0.997");
@@ -231,7 +229,7 @@ int main() {
 	inputText2.setPosition(rectInput2.getPosition().x - 140, rectInput2.getPosition().y - 30);
 	bool textEntered2 = false;
 	int count2 = 5;
-	
+	//им€ €чейки
 	sf::Text labelInput2;
 	labelInput2.setFont(font);
 	labelInput2.setString("Viscosity coefficient");
@@ -240,7 +238,6 @@ int main() {
 	labelInput2.setPosition(rectInput2.getPosition().x - 600, rectInput2.getPosition().y - 30);
 	bool activ2 = false;
 
-	//button save
 	sf::RectangleShape rectSave(sf::Vector2f(300, 40));
 	rectSave.setOrigin(rectSave.getSize().x / 2, rectInput1.getSize().y / 2);
 	rectSave.setPosition(window.getSize().x / 2 + 160, window.getSize().y / 2 + 50);
@@ -255,7 +252,6 @@ int main() {
 	labelSave.setPosition(rectSave.getPosition().x - 50, rectSave.getPosition().y - 30);
 	bool activ3 = false;
 
-	//button settings on the left of the screen
 	sf::Text labelSettings;
 	labelSettings.setFont(font);
 	labelSettings.setString("Settings");
@@ -263,11 +259,12 @@ int main() {
 	labelSettings.setFillColor(sf::Color::White);
 	labelSettings.setPosition(100, -15);
 
-	while (window.isOpen()) {
+	while (window.isOpen())
+	{
 		//window details
 		sf::Event event;
-		while (window.pollEvent(event)) {
-			//close window with exit button and escape
+		while (window.pollEvent(event))
+		{
 			if (event.type == sf::Event::Closed)
 				window.close();
 			if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
@@ -280,7 +277,6 @@ int main() {
 				rectSave.setOutlineColor(sf::Color(102, 102, 102));
 				activ2 = false, activ3 = false;
 			}
-			//getting diffusion input
 			if (event.type == sf::Event::TextEntered && activ1) {
 				if (event.text.unicode < 128) {
 					if (event.text.unicode == 8 && !inputText1.getString().isEmpty()) {
@@ -312,7 +308,6 @@ int main() {
 				rectSave.setOutlineColor(sf::Color(102, 102, 102));
 				activ1 = false, activ3 = false;
 			}
-			//getting viscosity input
 			if (event.type == sf::Event::TextEntered && activ2) {
 				if (event.text.unicode < 128) {
 					if (event.text.unicode == 8 && !inputText2.getString().isEmpty()) {
@@ -345,6 +340,7 @@ int main() {
 						rectLine.setPosition(rectLine.getPosition().x - 250, rectLine.getPosition().y);
 						flagMenu = false;
 					}
+					std::cout << 1 << std::endl;
 				}
 				if (event.mouseButton.button == sf::Mouse::Left && !flagClose &&
 					rectSet.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
@@ -354,6 +350,7 @@ int main() {
 						rectLine.setPosition(rectLine.getPosition().x - 250, rectLine.getPosition().y);
 						flagMenu = false;
 					}
+					std::cout << 2 << std::endl;
 				}
 				if (event.mouseButton.button == sf::Mouse::Left && !flagClose &&
 					rectOut.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
@@ -379,6 +376,7 @@ int main() {
 					rectOut.setPosition(x, y);
 					labelOut.setPosition(x - 35, y - 30);
 					rectLine.setPosition(rectLine.getPosition().x - 250, rectLine.getPosition().y);
+					std::cout << 1 << std::endl;
 				}
 				if (event.mouseButton.button == sf::Mouse::Left && !flagMenu &&
 					rectMenu.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
@@ -420,18 +418,18 @@ int main() {
 				else {
 					rectSave.setOutlineColor(sf::Color::Red);
 				}
-
+					
 			}
 		}
 		window.clear();
-		if (flag == 1) {  // we in the page start
+		if (flag == 1) {
 			lastMouseX = mouseX;
 			lastMouseY = mouseY;
 			sf::Vector2i localPosition = sf::Mouse::getPosition(window);
 			mouseX = localPosition.x;
 			mouseY = localPosition.y;
 
-			//add new source
+			//
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 				if ((mouseX / elementSize > 0 && mouseX / elementSize < xSize - 1 && mouseY / elementSize  > 0 && mouseY / elementSize < ySize - 1) && (lastMouseX / elementSize > 0 && lastMouseX / elementSize < xSize - 1 && lastMouseY / elementSize  > 0 && lastMouseY / elementSize < ySize - 1)) {
 					fluid.addSource(lastMouseX / elementSize, lastMouseY / elementSize, mouseX / elementSize, mouseY / elementSize);
@@ -450,8 +448,10 @@ int main() {
 			window.draw(sprite);
 		}
 
-		if (flag == 0) {  // we on the main page
+		if (flag == 0) {
 			window.draw(labelMain);
+			std::chrono::microseconds dura(75000);
+			std::this_thread::sleep_for(dura);
 			window.draw(rectRun);
 			window.draw(labelRun);
 			window.draw(rectSet);
@@ -481,7 +481,7 @@ int main() {
 				window.draw(labelOut);
 			}
 		}
-		if (flag == 2) {  // we on the page settings
+		if (flag == 2) {
 			if (flagMenu && labelSettings.getPosition().x == 100) labelSettings.setPosition(labelSettings.getPosition().x + 250, labelSettings.getPosition().y);
 			if (!flagMenu && labelSettings.getPosition().x == 350) labelSettings.setPosition(labelSettings.getPosition().x - 250, labelSettings.getPosition().y);
 			window.draw(labelSettings);
@@ -494,7 +494,7 @@ int main() {
 			window.draw(rectSave);
 			window.draw(labelSave);
 		}
-		if (flagClose) {  // we on the page exit
+		if (flagClose) {
 			window.draw(rectClose);
 			window.draw(rectYes);
 			window.draw(rectNo);
@@ -502,18 +502,19 @@ int main() {
 			window.draw(labelNo);
 			window.draw(labelClose);
 		}
-		Sleep(100);
-		if (mig < 5 and flagMig) {
-			mig++;
-			labelMain.setCharacterSize(labelMain.getCharacterSize() + 1);
-			labelMain.setPosition(labelMain.getPosition().x - 2, labelMain.getPosition().y);
-			if (mig == 5) flagMig = false;
-		}
-		else {
-			mig--;
-			labelMain.setCharacterSize(labelMain.getCharacterSize() - 1);
-			labelMain.setPosition(labelMain.getPosition().x + 2, labelMain.getPosition().y);
-			if (mig == 0) flagMig = true;
+		if (flag == 0) {
+			if (mig < 5 and flagMig) {
+				mig++;
+				labelMain.setCharacterSize(labelMain.getCharacterSize() + 1);
+				labelMain.setPosition(labelMain.getPosition().x - 2, labelMain.getPosition().y);
+				if (mig == 5) flagMig = false;
+			}
+			else {
+				mig--;
+				labelMain.setCharacterSize(labelMain.getCharacterSize() - 1);
+				labelMain.setPosition(labelMain.getPosition().x + 2, labelMain.getPosition().y);
+				if (mig == 0) flagMig = true;
+			}
 		}
 		window.display();
 	}
