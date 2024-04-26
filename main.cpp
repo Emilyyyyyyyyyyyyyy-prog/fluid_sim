@@ -388,11 +388,11 @@ int main() {
 					rectLine.setPosition(rectLine.getPosition().x - 250, rectLine.getPosition().y);
 					flagMenu = false;
 				}
-				if (event.mouseButton.button == sf::Mouse::Left &&
+				if (event.mouseButton.button == sf::Mouse::Left && flagClose &&
 					rectNo.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
 					flagClose = false;
 				}
-				if (event.mouseButton.button == sf::Mouse::Left &&
+				if (event.mouseButton.button == sf::Mouse::Left && flagClose &&
 					rectYes.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
 					window.close();
 				}
